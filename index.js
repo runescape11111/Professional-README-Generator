@@ -52,16 +52,25 @@ inquirer
         },
     ])
     .then((answer) => {
+        //mainText is for the for-of loop
         const mainText = {...answer};
         delete mainText["Title"];
         delete mainText["Licence"];
         delete mainText["GitHub Username"];
         delete mainText["Email"];
         
-        fs.appendFileSync(file,`# ${answer.Title}\n`,(err) =>
+        //title
+        fs.writeFileSync(file,`# ${answer.Title}\n`,(err) =>
+            err ? console.error(err) : console.log('Success!')
+        );
+        
+        //badge
+        const badge = `![badge](https://img.shields.io/static/v1?label=Licence&message=${answer.Licence}&color=blue&style=plastic)`;
+        fs.appendFileSync(file,`## ${badge}\n`,(err) =>
             err ? console.error(err) : console.log('Success!')
         );
 
+        //table of contents
         fs.appendFileSync(file,`## Table of Contents\n`,(err) =>
         err ? console.error(err) : console.log('Success!')
         );
@@ -75,12 +84,20 @@ inquirer
         err ? console.error(err) : console.log('Success!')
         );
 
+        //loop for some of the entries
         for (const [key,value] of Object.entries(mainText)) {
-            fs.appendFileSync(file,`## ${key}\n${value}\n`,(err) =>
-            err ? console.error(err) : console.log('Success!')
-        );
+            if ((key === "Installation Instructions") || (key === "Test Instructions")) {
+                fs.appendFileSync(file,"## "+key+"\n```\n"+value+"\n```\n",(err) =>
+                err ? console.error(err) : console.log('Success!')
+                );
+            } else {
+                fs.appendFileSync(file,`## ${key}\n${value}\n`,(err) =>
+                err ? console.error(err) : console.log('Success!')
+                );
+            }
         }
 
+        //last entry for the question section
         fs.appendFileSync(file,`## Questions\nGitHub profile: github.com/${answer["GitHub Username"]}/\n\nEmail: ${answer["Email"]}\n`,(err) =>
         err ? console.error(err) : console.log('Success!')
     );
